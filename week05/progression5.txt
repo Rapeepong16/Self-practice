@@ -1,0 +1,42 @@
+1) การประกาศ (export) week05-1.js
+
+export const add = (a, b) => a + b;
+export const sub = (a, b) => a - b;
+
+export default function multiply(a, b) {
+  return a * b;
+}
+
+- บรรทัดแรก export ฟังก์ชัน add (บวก)
+- บรรทัดสอง export ฟังก์ชัน sub (ลบ)
+- บรรทัดสาม export default ฟังก์ชัน multiply (คูณ)
+
+สรุป:
+- export const ... = ...  เรียกว่า "named export"
+- export default ...  มีได้แค่ 1 ต่อไฟล์ ใช้สำหรับค่า/ฟังก์ชันหลัก
+
+2) การเรียกใช้ (import) main.js
+import multiply, { add, sub } from './week05-1.js';
+
+console.log(add(2, 3));   // 5
+console.log(sub(5, 2));   // 3
+console.log(multiply(3, 4)); // 12
+
+อธิบาย:
+- import multiply → เรียกสิ่งที่ export default ออกมา (ไม่ต้องใส่ { })
+- import { add, sub } → เรียก named export ต้องใช้ชื่อเหมือนเดิม
+- เวลานำมาใช้ เราสามารถเรียกฟังก์ชันได้ตรง ๆ
+
+3) การทำงานเมื่อรัน
+
+- เรียก add(2,3) จะได้ 5
+- เรียก sub(5,2) จะได้ 3
+- เรียก multiply(3,4) จะได้ 12
+
+
+4) สรุป
+
+- ES Module ช่วยให้โค้ดแยกเป็นไฟล์ตามหน้าที่
+- export default ใช้สำหรับ "สิ่งหลัก" ของไฟล์
+- named export ใช้สำหรับสิ่งอื่น ๆ หลายตัว
+- import สามารถรวมทั้ง default และ named ได้พร้อมกัน

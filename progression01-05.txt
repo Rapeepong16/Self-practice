@@ -1,0 +1,227 @@
+## 1. การใช้วัตถุ (Object) เป็นตัวเก็บข้อมูลแบบ key-value pair (ตัวอย่าง: frequency counter)
+
+* แนวคิด: ใช้ Object เพื่อเก็บจำนวนครั้งของค่าที่พบ (key = ค่าที่เจอ, value = จำนวนครั้ง)
+* ขั้นตอนทั่วไป:
+
+  1. สร้าง `frequencyNum = {}` (วัตถุว่าง)
+  2. วนผ่านแต่ละตัวใน array ด้วย `for` หรือ `for...of`
+  3. สำหรับค่า `x` ใน array: ถ้า `frequencyNum[x]` มีอยู่แล้วให้เพิ่ม (`++`) มิฉะนั้นตั้งค่าเป็น `1`
+* ข้อดี: อ่านง่าย เข้าถึง/อัปเดตค่าได้ O(1)
+* ตัวอย่างโค้ด (JS):
+
+```js
+const frequencyNum = {};
+for (const x of arr) {
+  if (frequencyNum[x] !== undefined) frequencyNum[x]++;
+  else frequencyNum[x] = 1;
+}
+```
+
+---
+
+## 2. การหาอาร์เรย์ที่ไม่ซ้ำ (unique) ด้วย nested loops และ Boolean flag
+
+* แนวคิด: ใช้ nested loops เปรียบเทียบค่าปัจจุบันกับค่าที่เก็บไว้ใน `uniqueArr` หากพบว่าจะไม่เพิ่มซ้ำ
+* ตัวแปรสำคัญ: `exists` (Boolean) เป็นตัวบ่งชี้ว่าเจอค่าซ้ำหรือยัง
+* ขั้นตอนทั่วไป:
+
+  1. สร้าง `uniqueArr = []`
+  2. วน `i` เพื่อดูค่าจาก array ต้นฉบับ
+  3. สำหรับแต่ละค่า วน `j` ตรวจสอบกับ `uniqueArr` ว่ามีค่าเท่ากันหรือยัง
+  4. ถ้าไม่พบ (`exists === false`) ให้ `uniqueArr.push(value)`
+* ข้อสังเกต: ประสิทธิภาพ O(n^2) — ถ้าข้อมูลใหญ่ควรใช้ Set หรือ Object เพื่อปรับเป็น O(n)
+
+---
+
+## 3. ฟังก์ชัน `findEvens(...nums)` (อธิบายทีละบรรทัด)
+
+1. `function findEvens(...nums)`
+
+   * สร้างฟังก์ชันชื่อ `findEvens`
+   * `...nums` คือ rest parameter ที่เก็บ arguments ทั้งหมดเป็นอาเรย์ `nums`
+2. `let evens = [];`
+
+   * สร้างอาเรย์เปล่าเพื่อเก็บเลขคู่
+3. `for (let n of nums)`
+
+   * ใช้ `for...of` วนผ่านค่าทีละตัวใน `nums`
+4. `if (n % 2 === 0)`
+
+   * ตรวจว่า `n` เป็นเลขคู่หรือไม่ (ถ้าเศษจากการหาร 2 เป็น 0)
+5. `evens.push(n);`
+
+   * ถ้าเป็นเลขคู่ ให้เพิ่มลง `evens`
+6. `return evens;`
+
+   * คืนอาเรย์ `evens` หลังวนครบ
+
+ตัวอย่างโค้ด:
+
+```js
+function findEvens(...nums) {
+  const evens = [];
+  for (const n of nums) {
+    if (n % 2 === 0) evens.push(n);
+  }
+  return evens;
+}
+```
+
+---
+
+## 4. Shallow Equality (`shallowEqual`) — การอธิบายฟังก์ชันตรวจสอบความเท่ากันแบบตื้น
+
+* วัตถุประสงค์: ตรวจว่า `objA` และ `objB` "เท่ากัน" ในระดับ shallow (เท่าทั้งจำนวน key และค่าในแต่ละ key) โดยไม่ลงลึกตรวจ nested object
+* ขั้นตอนการทำงาน:
+
+  1. ถ้า `objA === objB` (same reference) → คืน `true`
+  2. ตรวจว่า `typeof objA` และ `typeof objB` เป็น `'object'` และไม่ใช่ `null`; ถ้าไม่ใช่ → คืน `false`
+  3. ดึงคีย์ของทั้งสองด้วย `Object.keys()` → ถ้าจำนวนคีย์ต่างกัน → คืน `false`
+  4. วนเช็กค่าของแต่ละคีย์ `objA[key] === objB[key]` → ถ้าค่าต่างกัน → คืน `false`
+  5. ถ้าผ่านทั้งหมด → คืน `true`
+* ข้อจำกัด: เป็นการเปรียบเทียบแบบตื้น (shallow). ถ้าค่าเป็นออบเจ็กต์/อาร์เรย์ภายในและมีโครงสร้างเหมือนกันแต่เป็น reference คนละตัว จะยังถือว่าเท่าถ้าใช้การเปรียบเทียบค่าที่เหมือนกันตรง ๆ แต่ถ้ต้องการตรวจแบบลึกให้ใช้ deepEqual
+* ตัวอย่างการใช้งาน: `shallowEqual({a:1,b:2}, {a:1,b:2})` → `true`
+
+---
+
+## 5. ฟังก์ชันจัดการตะกร้าสินค้า (Cart utilities)
+
+### 5.1 `addItem = (cart, item) => { ... }`
+
+* หน้าที่: เพิ่ม `item` ลง `cart` ถ้ามี `id` เดิมอยู่แล้วจะเพิ่ม `qty` ให้รายการนั้น แทนการเพิ่มรายการใหม่
+* พฤติกรรมหลัก:
+
+  1. `cart.findIndex(...)` — หาดัชนีของรายการที่มี `id === item.id`
+  2. ถ้าไม่เจอ (`i === -1`) → คืน `[...cart, item]` (คืนอาเรย์ใหม่โดยไม่แก้ต้นฉบับ)
+  3. ถ้าเจอ: สร้างสำเนา `copy = [...cart]` แล้วอัปเดต `copy[i] = { ...copy[i], qty: copy[i].qty + item.qty }`
+  4. คืน `copy`
+* ข้อดี: แบบ immutable — ไม่แก้ `cart` ต้นฉบับ เหมาะกับ React/State
+* ข้อสังเกต: เป็น shallow copy — nested objects ใน item จะยังชี้ reference เดิม
+* ควร validate `item.qty` ว่าเป็นตัวเลขก่อนใช้ (ป้องกัน NaN)
+
+ตัวอย่างโค้ด:
+
+```js
+const addItem = (cart, item) => {
+  const i = cart.findIndex(p => p.id === item.id);
+  if (i === -1) return [...cart, item];
+  const copy = [...cart];
+  copy[i] = { ...copy[i], qty: copy[i].qty + item.qty };
+  return copy;
+}
+```
+
+### 5.2 `removeItem = (cart, id) => cart.filter(p => p.id !== id);`
+
+* คืนอาเรย์ใหม่ที่ตัดรายการที่มี `id` ตรงกับพารามิเตอร์ออก
+* ไม่แก้ `cart` ต้นฉบับ (non-mutating)
+
+### 5.3 `total = cart => cart.reduce((sum, p) => sum + p.price * p.qty, 0);`
+
+* คำนวณยอดรวมของตะกร้า (`price × qty`) และคืนผลรวม
+* ควรตรวจ `price`/`qty` ให้เป็นตัวเลขก่อนใช้งานจริง
+
+### 5.4 `applyDiscount = (cart, fn) => fn(total(cart));`
+
+* เป็น higher-order function ที่รับ `fn` (ฟังก์ชันลดราคา) แล้วส่ง `total(cart)` ให้ fn นั้นและคืนผล
+* ไม่มีการเปลี่ยน `cart` ภายใน
+
+---
+
+## 6. ฟังก์ชัน `analyzeArray` — สรุป และการออกแบบ (non-mutating)
+
+* วัตถุประสงค์: รับอาเรย์ผสม (numbers, strings, objects ฯลฯ) แล้วคืนวัตถุสรุป:
+
+  * `counts`: จำนวนของแต่ละประเภท (`numbers`, `strings`, `objects`)
+  * `topNumbers`: สามตัวเลขที่มีค่าสูงสุด
+  * `cleaned`: อาเรย์ที่กรอง `null` และ `undefined` ออก (ไม่แก้ต้นฉบับ)
+
+* การทำงานหลัก:
+
+  1. `cleaned = arr.filter(x => x !== null && x !== undefined)` — กรอง null/undefined
+
+     * สำคัญเพราะ `typeof null === 'object'` ถ้าไม่กรองจะนับผิด
+  2. `counts = cleaned.reduce(...)` — เดินผ่าน `cleaned` และเพิ่มเคาน์ตาม `typeof`
+  3. `topNumbers` — กรองเฉพาะ number แล้วเรียงจากมากไปน้อย `sort((a,b) => b-a)` แล้ว `slice(0,3)`
+
+* ข้อสังเกตเชิงประสิทธิภาพ:
+
+  * ความซับซ้อนเวลา: ประมาณ O(n log n) เนื่องจากการเรียงลำดับตัวเลข (k log k)
+  * พื้นที่: สร้าง `cleaned` และ `topNumbers` เป็นอาเรย์ใหม่ (shallow copy ของ object ที่อยู่ภายใน)
+  * ถ้าข้อมูลมีขนาดใหญ่ ควรใช้วิธี streaming หรือ heap ขนาด 3 เพื่อหาสูงสุดสามค่าโดยไม่ต้องเรียงทั้งหมด
+
+* Edge cases และการปรับปรุง:
+
+  * ตรวจ `Array.isArray(arr)` ก่อนใช้งาน
+  * ถ้าต้องการตัด NaN / Infinity ควรใช้ `Number.isFinite(x)` แทน `typeof x === 'number'`
+  * `cleaned` จะยังชี้ไปยังออบเจ็กต์เดิม (shallow) — ถ้าต้องการหลีกเลี่ยง side-effect ควร deep clone
+
+ตัวอย่างโครงร่างโค้ด:
+
+```js
+const analyzeArray = (arr) => {
+  if (!Array.isArray(arr)) return { counts: {numbers:0,strings:0,objects:0}, topNumbers: [], cleaned: [] };
+
+  const cleaned = arr.filter(x => x !== null && x !== undefined);
+
+  const counts = cleaned.reduce((acc, x) => {
+    if (typeof x === 'number') acc.numbers++;
+    else if (typeof x === 'string') acc.strings++;
+    else if (typeof x === 'object') acc.objects++;
+    return acc;
+  }, { numbers:0, strings:0, objects:0 });
+
+  const topNumbers = cleaned
+    .filter(x => typeof x === 'number' && Number.isFinite(x))
+    .slice()
+    .sort((a,b) => b - a)
+    .slice(0,3);
+
+  return { counts, topNumbers, cleaned };
+}
+```
+
+---
+
+## 7. ES Module: การประกาศ (export) และการเรียกใช้ (import)
+
+### 7.1 การประกาศ (ไฟล์ `week05-1.js`)
+
+```js
+export const add = (a, b) => a + b;
+export const sub = (a, b) => a - b;
+
+export default function multiply(a, b) {
+  return a * b;
+}
+```
+
+* `add` และ `sub` เป็น named exports
+* `multiply` เป็น default export (ไฟล์หนึ่งมี default ได้เพียงหนึ่งตัว)
+
+### 7.2 การเรียกใช้ (ไฟล์ `main.js`)
+
+```js
+import multiply, { add, sub } from './week05-1.js';
+
+console.log(add(2, 3));   // 5
+console.log(sub(5, 2));   // 3
+console.log(multiply(3, 4)); // 12
+```
+
+* `import multiply` จะดึง default export โดยไม่ต้องเอาไว้ใน `{ }`
+* `import { add, sub }` จะดึง named exports
+
+### 7.3 ข้อสรุป
+
+* ES Modules ช่วยแยกโค้ดเป็นไฟล์ที่มีความรับผิดชอบชัดเจน
+* ใช้ default export สำหรับค่าหลักของไฟล์ และ named exports สำหรับฟังก์ชัน/ค่ารอง
+
+---
+
+## หมายเหตุสุดท้าย (สำหรับเอาไปใส่ไฟล์ .txt)
+
+* ข้อความในเอกสารนี้จัดเป็นหัวข้อและตัวอย่างโค้ดเพื่อให้อ่านเข้าใจได้เอง หากต้องการปรับสไตล์ (เช่น ภาษาอังกฤษ, เพิ่มตัวอย่างเพิ่มเติม, หรือรูปแบบย่อ/ขยาย) แจ้งได้
+* ถ้าต้องการให้แปลงเป็นไฟล์ `.txt` ที่ดาวน์โหลดได้โดยตรง (หรือ .md / .pdf) บอกผมได้เลย จะสร้างไฟล์ให้
+
+---

@@ -1,0 +1,37 @@
+1) addItem = (cart, item) => { ... }
+หน้าที่: เพิ่ม item เข้า cart แต่ถ้ามี id เดิมอยู่แล้ว จะเพิ่มจำนวน (qty) ให้กับรายการนั้นแทน
+รายละเอียดทีละบรรทัด:
+
+cart.findIndex(...) — ค้นหา index ของรายการที่มี id เท่ากับ item.id. ถ้าไม่พบ จะได้ -1.
+
+if (i === -1) return [...cart, item]; — ถ้าไม่มีรายการเดิม: คืนอาร์เรย์ใหม่ที่เป็นสำเนาของ cart แล้วต่อ item เข้าไปท้าย (ใช้ spread เพื่อไม่แก้ cart ต้นฉบับ).
+
+const copy = [...cart]; — ทำ shallow copy ของอาร์เรย์ (new array แต่สมาชิกเดิมยังชี้ออบเจ็กต์ตัวเดิม).
+
+copy[i] = { ...copy[i], qty: copy[i].qty + item.qty }; — สร้างอ็อบเจ็กต์ใหม่สำหรับ index นั้น (spread ของตัวเดิมแล้วปรับ qty) → ทำให้รายการที่แก้เป็นอ็อบเจ็กต์ใหม่ แต่รายการอื่น ๆ ใน copy ยังคงเป็น reference เดิม
+
+return copy; — คืนอาร์เรย์ใหม่ (immutable-style)
+
+ข้อสังเกต:
+
+ฟังก์ชันนี้ ไม่ แก้ cart ต้นฉบับ — ดีสำหรับ functional style/React state etc.
+
+เป็น shallow copy — ถ้า field ภายในเป็น nested object ยังแชร์ reference เดิม
+
+ถ้า item.qty เป็น undefined หรือ ไม่เป็นตัวเลข อาจได้ NaN — ควร validate ก่อนใช้งานจริง
+
+2) removeItem = (cart, id) => cart.filter(p => p.id !== id);
+
+หน้าที่: คืนอาร์เรย์ใหม่ที่ตัดสินค้าที่ id ตรงกับพารามิเตอร์ออก
+พฤติกรรม: filter คืนอาร์เรย์ใหม่ (non-mutating) — ต้นฉบับไม่ถูกเปลี่ยน
+
+3) total = cart => cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+
+หน้าที่: คำนวณยอดรวมของ cart (price × qty)
+รายละเอียด: reduce เริ่ม sum = 0 แล้วบวก price * qty ของแต่ละรายการ
+ข้อสังเกต: ถ้า price หรือ qty ไม่เป็นตัวเลข ผลลัพธ์จะผิด/เป็น NaN — ควรตรวจ/แปลงก่อนใช้งานจริง
+
+4) applyDiscount = (cart, fn) => fn(total(cart));
+
+หน้าที่: เป็น higher-order function — รับฟังก์ชัน fn ที่คาดว่าจะรับจำนวน (total) แล้วคืนจำนวนหลังลดราคา
+พฤติกรรม: คำนวณ total(cart) ก่อน แล้วส่งค่าให้ fn แล้วคืนผลลัพธ์ของ fn (ไม่มีการเปลี่ยน cart)
